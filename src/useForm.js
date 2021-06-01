@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef } from "react";
+import { set, get } from "lodash-es";
 
 const isEmpty = (obj) => {
   if (!obj) return true;
@@ -19,6 +20,7 @@ const useForm = ({ initialData = {}, schema, reValidateOn = "onChange" }) => {
     const res = await yupValidateAll(formData);
     // const newErrors = Object.keys(res.errors);
     setErrors(res.errors);
+    return res;
   };
 
   const validateAt = async (fieldPath, data) => {
@@ -30,7 +32,7 @@ const useForm = ({ initialData = {}, schema, reValidateOn = "onChange" }) => {
       setErrors(newErrors);
       return;
     }
-    console.log(errors);
+
     errors[fieldPath] = {
       ...errors[fieldPath],
     };
@@ -38,14 +40,12 @@ const useForm = ({ initialData = {}, schema, reValidateOn = "onChange" }) => {
   };
 
   const onChange = (e) => {
+    console.log("onChange triggered");
     const value =
       e.target.type === "checkbox" ? e.target.checked : e.target.value;
     const name = e.target.name;
-    console.log(name);
-    const newData = {
-      ...formData,
-      [name]: value,
-    };
+    const newData = { ...formData };
+    set(newData, name, value);
     setFormData(newData);
 
     // const targetIsDirty = formState.dirty.some((item) => item === name);
@@ -61,12 +61,30 @@ const useForm = ({ initialData = {}, schema, reValidateOn = "onChange" }) => {
   };
 
   const onBlur = (e) => {
+    console.log("onBlur triggered");
     validateAt(e.target.name, formData);
   };
 
   const onFocus = (e) => {
+    console.log("onFocus triggered");
     const touched = [...new Set([...formState.touched, e.target.name])];
     setFormState({ ...formState, touched });
+  };
+
+  const getValueByName = (path) => {
+    return get(formData, path);
+  };
+
+  const getFieldProps = (name) => {
+    return {
+      name,
+      value: getValueByName(name),
+      checked: getValueByName(name),
+      onBlur,
+      onChange,
+      onFocus,
+      error: errors[name],
+    };
   };
 
   const handlers = {
@@ -83,6 +101,7 @@ const useForm = ({ initialData = {}, schema, reValidateOn = "onChange" }) => {
     errors,
     handlers,
     validate,
+    getFieldProps,
   };
 };
 

@@ -3,44 +3,109 @@ import * as yup from "yup";
 import useForm from "./useForm";
 
 const schema = yup.object().shape({
-  heading: yup.string().required(),
-  description: yup.string().required(),
+  heading: yup.string().required("Heading is a required field"),
+  description: yup.string().required("Description is a required field"),
+  participants: yup.array().of(
+    yup.object().shape({
+      firstName: yup.string().required("First name is a required field"),
+      role: yup.string().required("Role is a required field"),
+    })
+  ),
 });
 
 const initialData = {
   heading: "",
   description: "",
-  participants: ["Erk", "man"],
+  participants: [
+    { firstName: "Horace", role: "Big player", test: "" },
+    { firstName: "Rafael", role: "Just another dude", test: "" },
+  ],
+  accept: false,
 };
 
 const AnotherForm = () => {
-  const { handlers, formData, formState, errors } = useForm({
-    initialData,
-    schema,
-  });
+  const { handlers, formData, setFormData, errors, validate, getFieldProps } =
+    useForm({
+      initialData,
+      schema,
+    });
+
+  const addParticipant = () => {
+    const newFormData = { ...formData };
+    newFormData.participants.push({ firstName: "", role: "" });
+    console.log(newFormData);
+    setFormData(newFormData);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const { errors: validationErrors } = await validate();
+    console.log(validationErrors);
+  };
+
   return (
-    <Form>
+    <Form onSubmit={handleSubmit}>
+      <h3>Just some general information</h3>
       <Label>
         Heading
         <Input
           type="text"
-          name="heading"
-          value={formData.heading}
-          {...handlers}
-          error={errors["date"]}
+          //   name="heading"
+          //   value={formData.heading}
+          //   {...handlers}
+          //   error={errors["heading"]}
+          {...getFieldProps("heading")}
         />
       </Label>
+      <Label>
+        Description
+        <TextArea
+          rows="5"
+          name="description"
+          value={formData.description}
+          {...handlers}
+          error={errors["description"]}
+        />
+      </Label>
+      <h3>Who will be participatin?</h3>
       {formData.participants.map((participant, i) => (
-        <Label>
-          Name
-          <Input
-            type="text"
-            name={`participants[${i}]`}
-            value={formData.participants[i]}
-            {...handlers}
-          />
-        </Label>
+        <div key={i}>
+          <h4>{i + 1}. </h4>
+          <Label>
+            First Name
+            <Input
+              type="text"
+              name={`participants[${i}].firstName`}
+              value={participant.firstName}
+              {...handlers}
+              error={errors[`participants[${i}].firstName`]}
+            />
+          </Label>
+          <Label>
+            Role
+            <Select
+              name={`participants[${i}].role`}
+              value={participant.role}
+              {...handlers}
+              error={errors[`participants[${i}].role`]}
+            >
+              <option>Just a placeholder role</option>
+              <option value="Big boy player">Big boy player</option>
+              <option value="Regular dude">Regular dude</option>
+              <option value="Next level pinata">Next level pinata</option>
+            </Select>
+          </Label>
+        </div>
       ))}
+      <h3>Do you accept this challenge?</h3>
+      <Label>
+        <input type="checkbox" {...getFieldProps("accept")} />
+        Yes, I do accept
+      </Label>
+      <button type="button" onClick={addParticipant}>
+        Add participant
+      </button>
+      <button>Submit</button>
       <ErrorMessages errors={errors} />
     </Form>
   );
@@ -61,7 +126,7 @@ const Label = styled.label`
 `;
 
 const InputAppearance = css`
-  height: 2rem;
+  min-height: 2rem;
   padding: 0.5rem;
   border: ${({ error }) => (error ? "1px solid red" : "1px solid black")};
 
@@ -71,6 +136,10 @@ const InputAppearance = css`
 `;
 
 const Input = styled.input`
+  ${InputAppearance}
+`;
+
+const TextArea = styled.textarea`
   ${InputAppearance}
 `;
 
@@ -88,9 +157,9 @@ const ErrorMessages = ({ errors }) => {
   if (!errorKeys.length) return null;
   return (
     <StyledErrorMessages>
-      {errorKeys.map((key) => {
+      {errorKeys.map((key, i) => {
         const { message } = errors[key];
-        return <li key={message}>{message}</li>;
+        return <li key={message + i}>{message}</li>;
       })}
     </StyledErrorMessages>
   );
