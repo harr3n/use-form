@@ -16,24 +16,19 @@ const schema = yup.object().shape({
 const initialData = {
   heading: "",
   description: "",
-  participants: [
-    { firstName: "Horace", role: "Big player", test: "" },
-    { firstName: "Rafael", role: "Just another dude", test: "" },
-  ],
+  participants: [{ firstName: "", role: "" }],
   accept: false,
 };
 
 const AnotherForm = () => {
-  const { handlers, formData, setFormData, errors, validate, getFieldProps } =
-    useForm({
-      initialData,
-      schema,
-    });
+  const { formData, setFormData, errors, validate, getFieldProps } = useForm({
+    initialData,
+    schema,
+  });
 
   const addParticipant = () => {
     const newFormData = { ...formData };
     newFormData.participants.push({ firstName: "", role: "" });
-    console.log(newFormData);
     setFormData(newFormData);
   };
 
@@ -48,48 +43,27 @@ const AnotherForm = () => {
       <h3>Just some general information</h3>
       <Label>
         Heading
-        <Input
-          type="text"
-          //   name="heading"
-          //   value={formData.heading}
-          //   {...handlers}
-          //   error={errors["heading"]}
-          {...getFieldProps("heading")}
-        />
+        <Input type="text" {...getFieldProps("heading")} />
       </Label>
       <Label>
         Description
-        <TextArea
-          rows="5"
-          name="description"
-          value={formData.description}
-          {...handlers}
-          error={errors["description"]}
-        />
+        <TextArea rows="5" {...getFieldProps("description")} />
       </Label>
       <h3>Who will be participatin?</h3>
-      {formData.participants.map((participant, i) => (
+      {formData.participants.map((_participant, i) => (
         <div key={i}>
           <h4>{i + 1}. </h4>
           <Label>
             First Name
             <Input
               type="text"
-              name={`participants[${i}].firstName`}
-              value={participant.firstName}
-              {...handlers}
-              error={errors[`participants[${i}].firstName`]}
+              {...getFieldProps(`participants[${i}].firstName`)}
             />
           </Label>
           <Label>
             Role
-            <Select
-              name={`participants[${i}].role`}
-              value={participant.role}
-              {...handlers}
-              error={errors[`participants[${i}].role`]}
-            >
-              <option>Just a placeholder role</option>
+            <Select {...getFieldProps(`participants[${i}].role`)}>
+              <option value="">Pick a role...</option>
               <option value="Big boy player">Big boy player</option>
               <option value="Regular dude">Regular dude</option>
               <option value="Next level pinata">Next level pinata</option>
@@ -97,16 +71,16 @@ const AnotherForm = () => {
           </Label>
         </div>
       ))}
-      <h3>Do you accept this challenge?</h3>
-      <Label>
-        <input type="checkbox" {...getFieldProps("accept")} />
-        Yes, I do accept
-      </Label>
       <button type="button" onClick={addParticipant}>
         Add participant
       </button>
-      <button>Submit</button>
+      <h3>Do you accept this challenge?</h3>
+      <label>
+        <input type="checkbox" {...getFieldProps("accept")} />
+        Yes, I do accept
+      </label>
       <ErrorMessages errors={errors} />
+      <button>Submit</button>
     </Form>
   );
 };
@@ -123,6 +97,7 @@ const Form = styled.form`
 const Label = styled.label`
   display: flex;
   flex-direction: column;
+  margin-bottom: 1rem;
 `;
 
 const InputAppearance = css`

@@ -87,19 +87,15 @@ const useForm = ({ initialData = {}, schema, reValidateOn = "onChange" }) => {
     };
   };
 
-  const handlers = {
-    onBlur,
-    onChange,
-    onFocus,
-  };
-
   return {
     formData,
     setFormData,
     formState,
     setFormState,
     errors,
-    handlers,
+    onBlur,
+    onChange,
+    onFocus,
     validate,
     getFieldProps,
   };
