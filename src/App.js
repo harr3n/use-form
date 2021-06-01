@@ -1,25 +1,25 @@
-import logo from './logo.svg';
-import './App.css';
+import { CreateMeetingProvider } from "./useCreateMeeting";
+import StepOne from "./Step1";
+import AnotherForm from "./AnotherForm";
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <CreateMeetingProvider>
+        <div>Welcome to superform</div>
+        <CreateMeeting />
+      </CreateMeetingProvider>
     </div>
   );
 }
 
 export default App;
+
+const CreateMeeting = () => {
+  return (
+    <div>
+      {/* <StepOne /> */}
+      <AnotherForm />
+    </div>
+  );
+};
