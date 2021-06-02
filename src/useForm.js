@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback } from "react";
 import { set, get } from "lodash-es";
 
 const isEmpty = (obj) => {
@@ -18,7 +18,6 @@ const useForm = ({ initialData = {}, schema, reValidateOn = "onChange" }) => {
 
   const validate = async () => {
     const res = await yupValidateAll(formData);
-    // const newErrors = Object.keys(res.errors);
     setErrors(res.errors);
     return res;
   };
@@ -40,9 +39,8 @@ const useForm = ({ initialData = {}, schema, reValidateOn = "onChange" }) => {
   };
 
   const onChange = (e) => {
-    console.log("onChange triggered");
-    const value =
-      e.target.type === "checkbox" ? e.target.checked : e.target.value;
+    const type = e.target.type;
+    const value = type === "checkbox" ? e.target.checked : e.target.value;
     const name = e.target.name;
     const newData = { ...formData };
     set(newData, name, value);
@@ -52,7 +50,10 @@ const useForm = ({ initialData = {}, schema, reValidateOn = "onChange" }) => {
     // const targetIsTouched = formState.touched.some((item) => item === name);
     const targetIsInvalid = Object.keys(errors).some((key) => key === name);
 
-    if (targetIsInvalid && reValidateOn === "onChange") {
+    if (
+      (targetIsInvalid && reValidateOn === "onChange") ||
+      type === "checkbox"
+    ) {
       validateAt(name, newData);
     }
 
@@ -61,12 +62,10 @@ const useForm = ({ initialData = {}, schema, reValidateOn = "onChange" }) => {
   };
 
   const onBlur = (e) => {
-    console.log("onBlur triggered");
     validateAt(e.target.name, formData);
   };
 
   const onFocus = (e) => {
-    console.log("onFocus triggered");
     const touched = [...new Set([...formState.touched, e.target.name])];
     setFormState({ ...formState, touched });
   };

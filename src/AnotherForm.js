@@ -11,6 +11,7 @@ const schema = yup.object().shape({
       role: yup.string().required("Role is a required field"),
     })
   ),
+  accept: yup.bool().oneOf([true], "You must accept your destiny"),
 });
 
 const initialData = {
@@ -21,15 +22,24 @@ const initialData = {
 };
 
 const AnotherForm = () => {
-  const { formData, setFormData, errors, validate, getFieldProps } = useForm({
-    initialData,
-    schema,
-  });
+  const { formData, setFormData, errors, validate, getFieldProps, formState } =
+    useForm({
+      initialData,
+      schema,
+    });
 
   const addParticipant = () => {
-    const newFormData = { ...formData };
-    newFormData.participants.push({ firstName: "", role: "" });
-    setFormData(newFormData);
+    setFormData({
+      ...formData,
+      participants: [...formData.participants, { firstName: "", role: "" }],
+    });
+  };
+
+  const removeParticipant = (i) => {
+    setFormData({
+      ...formData,
+      participants: formData.participants.filter((_, index) => i !== index),
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -52,7 +62,7 @@ const AnotherForm = () => {
       <h3>Who will be participatin?</h3>
       {formData.participants.map((_participant, i) => (
         <div key={i}>
-          <h4>{i + 1}. </h4>
+          <h4>{i + 1}.</h4>
           <Label>
             First Name
             <Input
@@ -69,6 +79,9 @@ const AnotherForm = () => {
               <option value="Next level pinata">Next level pinata</option>
             </Select>
           </Label>
+          <button onClick={() => removeParticipant(i)}>
+            Remove this participant
+          </button>
         </div>
       ))}
       <button type="button" onClick={addParticipant}>
@@ -81,6 +94,18 @@ const AnotherForm = () => {
       </label>
       <ErrorMessages errors={errors} />
       <button>Submit</button>
+      <>
+        <strong>Result (data):</strong>
+        <pre>{JSON.stringify(formData, null, "\t")}</pre>
+      </>
+      <>
+        <strong>Errors:</strong>
+        <pre>{JSON.stringify(errors, null, "\t")}</pre>
+      </>
+      <>
+        <strong>Other form state:</strong>
+        <pre>{JSON.stringify(formState, null, "\t")}</pre>
+      </>
     </Form>
   );
 };
